@@ -10,20 +10,22 @@ export const fetchUsersApi =(createAsyncThunk('car/fetchUsers', async()=>{
     return response.data
 } ));
 
-export const saveUserApi =(createAsyncThunk('car/saveUserApi', async(payload)=>{
-
-   try{
-    const response = await axios.post(User_URLS, payload);
-    console.log(response.data)
-
-    return response.data;
-   }
-   catch(error){
-    console.log(error)
-   }
-    
-
-}))
+export const saveUserApi = createAsyncThunk(
+    "car/saveUserApi",
+    async (payload) => {
+      try {
+        const response = await axios.post(User_URLS, payload);
+       
+  
+        return response.data;
+      } catch (error) {
+       
+        // Return a rejected action with an error object
+        return thunkAPI.rejectWithValue(error);
+      }
+    }
+  );
+  
 
 
 
@@ -60,10 +62,11 @@ const carSlice = createSlice({
         builder.addCase(saveUserApi.pending,(state)=>{
             state.loading = "pending"
         });
-        builder.addCase(saveUserApi.fulfilled,(state,action)=>{
+        builder.addCase(saveUserApi.fulfilled, (state, action) => {
             state.loading = "idle";
-            state.carsData.unshift(action.payload);
-        })
+            // Use immutable updates instead of mutating the existing array
+            state.carsData = [action.payload, ...state.carsData];
+          });
         builder.addCase(saveUserApi.rejected,(state,action)=>{
             state.loading = "idle";
             console.log('nahi hora kia')
